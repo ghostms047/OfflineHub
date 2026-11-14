@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><style>
+:root{--bg:#f6f8fb;--fg:#151b23;--card:#e6ecf4;--accent:#2f5d9e}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--fg:#e4e9f0;--card:#232c38;--accent:#9dbff0}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;touch-action:none}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:14px;padding:10px 18px;font-size:16px;font-weight:600}
+h1{margin:8px 0;font-size:24px}.bar{display:flex;gap:16px;align-items:center;margin:8px 0}</style>
+<style>#g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(90vw,380px);aspect-ratio:1;background:var(--card);padding:8px;border-radius:18px}
+.t{border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:clamp(18px,7vw,32px);background:rgba(127,127,127,.15)}</style></head>
+<body><h1>2048</h1><div class="bar"><div>Score: <b id="s">0</b></div><div>Best: <b id="b">0</b></div><button onclick="init()">New</button></div><div id="g"></div><p id="m"></p>
+<script>
+let B,S,best=+localStorage.getItem('b2048')||0,over=false;
+const col=v=>v?'hsl('+(220-Math.log2(v)*18)+',55%,'+(v<8?82:58)+'%)':'';
+function init(){B=Array.from({length:4},()=>[0,0,0,0]);S=0;over=false;add();add();draw();m.textContent=''}
+function add(){const e=[];B.forEach((r,i)=>r.forEach((v,j)=>v||e.push([i,j])));if(!e.length)return;const [i,j]=e[Math.random()*e.length|0];B[i][j]=Math.random()<.9?2:4}
+function draw(){g.innerHTML='';B.flat().forEach(v=>{const d=document.createElement('div');d.className='t';d.textContent=v||'';d.style.background=col(v)||'';d.style.color=v>4?'#fff':'inherit';g.appendChild(d)});s.textContent=S;if(S>best){best=S;localStorage.setItem('b2048',best)}b.textContent=best}
+function line(a){let r=a.filter(x=>x),o=[];for(let i=0;i<r.length;i++){if(r[i]==r[i+1]){o.push(r[i]*2);S+=r[i]*2;i++}else o.push(r[i])}while(o.length<4)o.push(0);return o}
+function move(d){if(over)return;const o=JSON.stringify(B);
+ for(let k=0;k<4;k++){let a=d<2?B[k].slice():B.map(r=>r[k]);if(d==1||d==2)a.reverse();a=line(a);if(d==1||d==2)a.reverse();if(d<2)B[k]=a;else a.forEach((v,i)=>B[i][k]=v)}
+ if(JSON.stringify(B)!=o){add()}draw();
+ if(!B.flat().includes(0)&&!B.some((r,i)=>r.some((v,j)=>v==(r[j+1]||-1)||v==((B[i+1]||[])[j]||-1)))){over=true;m.textContent='Game over'}}
+// d: 0=left 1=right 2=down 3=up (mapping below)
+let x0,y0;addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
+ if(Math.abs(dx)>Math.abs(dy))move(dx<0?0:1);else move(dy<0?3:2)});
+addEventListener('keydown',e=>{const k={ArrowLeft:0,ArrowRight:1,ArrowDown:2,ArrowUp:3}[e.key];if(k!==undefined)move(k)});
+init();
+</script></body></html>

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><style>
+:root{--bg:#f6f8fb;--fg:#151b23;--card:#e6ecf4;--accent:#2f5d9e}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--fg:#e4e9f0;--card:#232c38;--accent:#9dbff0}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;touch-action:none}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:14px;padding:10px 18px;font-size:16px;font-weight:600}
+h1{margin:8px 0;font-size:24px}.bar{display:flex;gap:16px;align-items:center;margin:8px 0}</style>
+<style>#g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:min(90vw,380px)}
+.k{aspect-ratio:1;border-radius:14px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:clamp(26px,10vw,44px)}
+.k.o{background:transparent;border:2px solid var(--accent)}.k.d{opacity:.35}</style></head>
+<body><h1>Memory match</h1><div class="bar"><div>Moves: <b id="m">0</b></div><div>Best: <b id="b">–</b></div><button onclick="init()">New</button></div><div id="g"></div><p id="w"></p>
+<script>
+const E=['🍎','🚀','🎧','🌵','🐙','🎲','🔭','🍄'];let c,open,moves,lock,done,best=localStorage.getItem('bmem');b.textContent=best||'–';
+function init(){c=[...E,...E].sort(()=>Math.random()-.5);open=[];moves=0;lock=false;done=0;m.textContent=0;w.textContent='';g.innerHTML='';
+ c.forEach((v,i)=>{const d=document.createElement('div');d.className='k';d.onclick=()=>flip(i,d);g.appendChild(d)})}
+function flip(i,d){if(lock||d.classList.contains('o')||d.classList.contains('d'))return;d.classList.add('o');d.textContent=c[i];open.push([i,d]);
+ if(open.length==2){moves++;m.textContent=moves;const [a,bb]=open;if(c[a[0]]==c[bb[0]]){a[1].classList.add('d');bb[1].classList.add('d');open=[];if(++done==8){w.textContent='You won in '+moves+' moves!';if(!best||moves<+best){best=moves;localStorage.setItem('bmem',best);b.textContent=best}}}
+ else{lock=true;setTimeout(()=>{open.forEach(x=>{x[1].classList.remove('o');x[1].textContent=''});open=[];lock=false},700)}}}
+init();
+</script></body></html>

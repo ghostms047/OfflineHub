@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><style>
+:root{--bg:#f6f8fb;--fg:#151b23;--card:#e6ecf4;--accent:#2f5d9e}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--fg:#e4e9f0;--card:#232c38;--accent:#9dbff0}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;touch-action:none}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:14px;padding:10px 18px;font-size:16px;font-weight:600}
+h1{margin:8px 0;font-size:24px}.bar{display:flex;gap:16px;align-items:center;margin:8px 0}</style></head>
+<body><h1>Snake</h1><div class="bar"><div>Score: <b id="s">0</b></div><div>Best: <b id="b">0</b></div></div>
+<canvas id="c" width="320" height="320" style="width:min(92vw,380px);border-radius:16px;background:var(--card)"></canvas><p>Swipe to steer · tap to restart</p>
+<script>
+const N=16,cv=c.getContext('2d');let sn,dir,nd,food,sc,best=+localStorage.getItem('bsn')||0,t,dead;
+function init(){sn=[[8,8],[7,8],[6,8]];dir=nd=[1,0];sc=0;dead=false;place();clearInterval(t);t=setInterval(step,130);draw()}
+function place(){do{food=[Math.random()*N|0,Math.random()*N|0]}while(sn.some(p=>p[0]==food[0]&&p[1]==food[1]))}
+function step(){if(dead)return;dir=nd;const h=[sn[0][0]+dir[0],sn[0][1]+dir[1]];
+ if(h[0]<0||h[1]<0||h[0]>=N||h[1]>=N||sn.some(p=>p[0]==h[0]&&p[1]==h[1])){dead=true;draw();return}
+ sn.unshift(h);if(h[0]==food[0]&&h[1]==food[1]){sc++;place()}else sn.pop();
+ if(sc>best){best=sc;localStorage.setItem('bsn',best)}draw()}
+function draw(){const a=getComputedStyle(document.body).getPropertyValue('--accent');cv.clearRect(0,0,320,320);const u=20;
+ cv.fillStyle='#d0504a';cv.beginPath();cv.arc(food[0]*u+10,food[1]*u+10,8,0,7);cv.fill();
+ cv.fillStyle=a;sn.forEach((p,i)=>{cv.globalAlpha=i?0.75:1;cv.fillRect(p[0]*u+1,p[1]*u+1,u-2,u-2)});cv.globalAlpha=1;
+ s.textContent=sc;b.textContent=best;if(dead){cv.fillStyle='rgba(0,0,0,.5)';cv.fillRect(0,0,320,320);cv.fillStyle='#fff';cv.font='24px sans-serif';cv.textAlign='center';cv.fillText('Game over — tap',160,165)}}
+function turn(d){if(d[0]==-dir[0]&&d[1]==-dir[1])return;nd=d}
+let x0,y0;addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<20){if(dead)init();return}
+ if(Math.abs(dx)>Math.abs(dy))turn([dx<0?-1:1,0]);else turn([0,dy<0?-1:1])});
+addEventListener('keydown',e=>{const k={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(k)turn(k)});
+init();
+</script></body></html>

@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><style>
+:root{--bg:#f6f8fb;--fg:#151b23;--card:#e6ecf4;--accent:#2f5d9e}
+@media(prefers-color-scheme:dark){:root{--bg:#0f141b;--fg:#e4e9f0;--card:#232c38;--accent:#9dbff0}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;touch-action:none}
+button{background:var(--accent);color:var(--bg);border:0;border-radius:14px;padding:10px 18px;font-size:16px;font-weight:600}
+h1{margin:8px 0;font-size:24px}.bar{display:flex;gap:16px;align-items:center;margin:8px 0}</style>
+<style>#g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:min(80vw,300px)}
+.k{aspect-ratio:1;border-radius:16px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:700}</style></head>
+<body><h1>Tic-tac-toe</h1><div class="bar"><div>You ✕ · Computer ◯</div><button onclick="init()">New</button></div><div id="g"></div><h2 id="r"></h2>
+<script>
+let B,over;const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+function win(b){for(const [x,y,z] of L)if(b[x]&&b[x]==b[y]&&b[x]==b[z])return b[x];return b.every(v=>v)?'T':null}
+function mm(b,p){const w=win(b);if(w)return w=='O'?1:w=='X'?-1:0;let best=p=='O'?-2:2;for(let i=0;i<9;i++)if(!b[i]){b[i]=p;const v=mm(b,p=='O'?'X':'O');b[i]=null;best=p=='O'?Math.max(best,v):Math.min(best,v)}return best}
+function ai(){let bi=-1,bv=-2;for(let i=0;i<9;i++)if(!B[i]){B[i]='O';const v=mm(B,'X');B[i]=null;if(v>bv){bv=v;bi=i}}if(bi>=0)B[bi]='O'}
+function draw(){g.innerHTML='';B.forEach((v,i)=>{const d=document.createElement('div');d.className='k';d.textContent=v=='X'?'✕':v=='O'?'◯':'';d.onclick=()=>play(i);g.appendChild(d)})}
+function end(){const w=win(B);if(w){over=true;r.textContent=w=='T'?'Draw':w=='X'?'You win!':'Computer wins'}}
+function play(i){if(over||B[i])return;B[i]='X';end();if(!over){ai();end()}draw()}
+function init(){B=Array(9).fill(null);over=false;r.textContent='';draw()}init();
+</script></body></html>
